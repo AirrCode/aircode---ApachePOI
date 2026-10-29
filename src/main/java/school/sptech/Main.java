@@ -2,6 +2,8 @@ package school.sptech;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class Main {
@@ -10,6 +12,7 @@ public class Main {
     private static final String ARQUIVO_RECLAMACOES = "dadosconsumidor2025.xlsx";
 
     public static void main(String[] args) {
+        LocalDateTime dataHoraInicio = LocalDateTime.now();
 
         LeitorExcel leitorExcel = new LeitorExcel();
         List<Voo> voos = leitorExcel.extrairVoos(ARQUIVO_VOOS);
@@ -40,11 +43,25 @@ public class Main {
 
                 System.out.println("Importando reclamacoes...");
                 importador.importarReclamacoes(reclamacoes);
+                LocalDateTime dataHoraFim = LocalDateTime.now();
+
+                System.out.println("Salvando log de importação...");
+                importador.salvarLog(
+                        ARQUIVO_VOOS,
+                        voos.size(),
+                        ARQUIVO_RECLAMACOES,
+                        reclamacoes.size(),
+                        dataHoraInicio,
+                        dataHoraFim
+                );
 
                 conexao.commit();
 
+                DateTimeFormatter formatador = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
                 System.out.println("----------------------------");
                 System.out.println("IMPORTACAO FINALIZADA!");
+                System.out.println("Aplicação iniciada em: " + dataHoraInicio.format(formatador));
+                System.out.println("Aplicação finalizada em: " + dataHoraFim.format(formatador));
                 System.out.println("----------------------------");
 
             } catch (Exception e) {
