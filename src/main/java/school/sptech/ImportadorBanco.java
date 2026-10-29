@@ -7,6 +7,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.HashMap;
@@ -411,4 +412,25 @@ public class ImportadorBanco {
         System.out.println("Reclamacoes enviadas para o banco: " + enviadas);
         System.out.println("Reclamacoes ignoradas (dados obrigatorios ausentes): " + ignoradas);
     }
+
+    public void salvarLog(String arqVoos, int qtdVoos, String arqRec, int qtdRec, LocalDateTime inicio, LocalDateTime fim) throws SQLException {
+        String sql = """
+            INSERT INTO log_importacao 
+            (arquivo_voos, linhas_voos, arquivo_reclamacoes, linhas_reclamacoes, data_hora_inicio, data_hora_fim) 
+            VALUES (?, ?, ?, ?, ?, ?)
+            """;
+
+        try (PreparedStatement statement = conexao.prepareStatement(sql)) {
+            statement.setString(1, arqVoos);
+            statement.setInt(2, qtdVoos);
+            statement.setString(3, arqRec);
+            statement.setInt(4, qtdRec);
+            statement.setObject(5, inicio);
+            statement.setObject(6, fim);
+
+            statement.executeUpdate();
+            System.out.println("Log de importação salvo no banco de dados com sucesso!");
+        }
+    }
+
 }
